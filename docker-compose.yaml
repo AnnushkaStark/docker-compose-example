@@ -9,6 +9,7 @@ services:
     environment:
       POSTGRES_HOST: db
       MONGO_HOST: mongo
+      MYSQL_HOST: mysql
     depends_on:
       db:
         condition: service_healthy
