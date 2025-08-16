@@ -37,6 +37,20 @@ services:
       timeout: 5s
       retries: 5
 
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: $MYSQL_ROOT_PASSWORD
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - "3306:3306"
+    volumes:
+      - pgdata:/var/lib/mysql/data
+    networks:
+      - app-network
+
   minio:
     image: quay.io/minio/minio
     container_name: minio
@@ -91,6 +105,7 @@ volumes:
   pgdata:
   mongo_data:
   minio_data:
+  mysql_data:
 
 networks:
   app-network:
