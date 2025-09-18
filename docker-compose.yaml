@@ -91,6 +91,9 @@ services:
     container_name: my-redis
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
     networks:
       - app-network
 
@@ -102,11 +105,48 @@ services:
     networks:
       - app-network
 
+  celery:
+    build: .
+    command: celery -A worker worker --loglevel=info
+    environment:
+      DB_SERVER: $DB_SERVER
+      DB_DATABASE: $DB_DATABASE
+      DB_USERNAME: $DB_USERNAME
+      DB_PASSWORD: $DB_PASSWORD
+      REDIS_URL: $REDIS_URL
+      CELERY_BROKER_URL: $CELERY_BROKER_URL
+      CELERY_RESULT_BACKEND: $CELERY_RESULT_BACKEND
+    depends_on:
+      - redis
+      - app
+    networks:
+      - app-network
+
+  flower:
+    build: .
+    command: celery -A worker flower --port=5555
+    environment:
+      DB_SERVER: $DB_SERVER
+      DB_DATABASE: $DB_DATABASE
+      DB_USERNAME: $DB_USERNAME
+      DB_PASSWORD: $DB_PASSWORD
+      REDIS_URL: $REDIS_URL
+      CELERY_BROKER_URL: $CELERY_BROKER_URL
+      CELERY_RESULT_BACKEND: $CELERY_RESULT_BACKEND
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery
+    networks:
+      - app-network
+
 volumes:
   pgdata:
   mongo_data:
   minio_data:
   mysql_data:
+  redis_data:
 
 networks:
   app-network:
