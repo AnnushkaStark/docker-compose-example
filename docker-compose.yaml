@@ -114,8 +114,8 @@ services:
       DB_USERNAME: $DB_USERNAME
       DB_PASSWORD: $DB_PASSWORD
       REDIS_URL: $REDIS_URL
-      CELERY_BROKER_URL: $CELERY_BROKER_URL
-      CELERY_RESULT_BACKEND: $CELERY_RESULT_BACKEND
+      CELERY_BROKER_URL: $REDIS_URL
+      CELERY_RESULT_BACKEND: $REDIS_URL
     depends_on:
       - redis
       - app
@@ -131,8 +131,8 @@ services:
       DB_USERNAME: $DB_USERNAME
       DB_PASSWORD: $DB_PASSWORD
       REDIS_URL: $REDIS_URL
-      CELERY_BROKER_URL: $CELERY_BROKER_URL
-      CELERY_RESULT_BACKEND: $CELERY_RESULT_BACKEND
+      CELERY_BROKER_URL: $REDIS_URL
+      CELERY_RESULT_BACKEND: $REDIS_URL
     ports:
       - "5555:5555"
     depends_on:
@@ -140,6 +140,21 @@ services:
       - celery
     networks:
       - app-network
+  celery-beat:
+    build: .
+    command: celery -A worker beat --loglevel=info --pidfile=/tmp/celerybeat.pid -s /tmp/celerybeat-schedule
+    environment:
+      DB_SERVER: $DB_SERVER
+      DB_DATABASE: $DB_DATABASE
+      DB_USERNAME: $DB_USERNAME
+      DB_PASSWORD: $DB_PASSWORD
+      REDIS_URL: $REDIS_URL
+      CELERY_BROKER_URL: $REDIS_URL
+      CELERY_RESULT_BACKEND: $REDIS_URL
+    depends_on:
+      - redis
+      - app
+
 
 volumes:
   pgdata:
